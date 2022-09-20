@@ -1,32 +1,29 @@
 #include <efi.h>
 #include <efilib.h>
+
+EFI_FILE_HANDLE GetVolume(EFI_HANDLE image) {
+  EFI_LOADED_IMAGE *LoadedImage = NULL;
+  EFI_GUID LoadedImageGuid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
+  EFI_FILE_IO_INTERFACE *IOVolume;
+  EFI_GUID FileSystemGuid = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
+  EFI_FILE_HANDLE Volume;
  
-EFI_FILE* LoadFile(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
-  EFI_FILE* LoadedFile;
-  EFI_LOADED_IMAGE_PROTOCOL* LoadedImage;
-  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL* FileSystem;
+  uefi_call_wrapper(BS->HandleProtocol, 3, image, &LoadedImageGuid, (void **) &LoadedImage);
 
-  SystemTable->BootServices->HandleProtocol(ImageHandle, &gEfiLoadedImageProtocolGuid, (void**) &LoadedImage);
-  SystemTable->BootServices->HandleProtocol(LoadedImage->DeviceHandle, &gEfiSimpleFileSystemProtocolGuid, (void**) &FileSystem);
+  uefi_call_wrapper(BS->HandleProtocol, 3, LoadedImage->DeviceHandle, &FileSystemGuid, (VOID*) &IOVolume);
+  uefi_call_wrapper(IOVolume->OpenVolume, 2, IOVolume, &Volume);
 
-  if (Directory == NULL) FileSystem->OpenVolume(FileSystem, &Directory);
-
-  EFI_STATUS status = Directory->Open(Directory, &LoadedFile, Path, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY);
-
-  if (status != EFI_SUCCESS) return NULL;
-
-  return LoadedFile;
+  return Volume;
 }
 
 EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
   InitializeLib(ImageHandle, SystemTable);
 
-  Print(L"Hello, world!\n\r");
+  Print(L"MyOS Bootloader\n");
+  
+  EFI_FILE_HANDLE Volume = GetVolume(ImageHandle);
 
-  if (LoadFile(NULL, L"kernel.elf", ImageHandle, SystemTable) == NULL)
-    Print(L"ERROR: Couldn't load kernel.elf\n\r");
-  else
-    Print(L"Kernel loaded successfully!\n\r");
+  
 
   return EFI_SUCCESS;
 }

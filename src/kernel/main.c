@@ -1,3 +1,3 @@
-int _start(){
-    return 123;
+void _start() {
+    while (1) asm("hlt");
 }
