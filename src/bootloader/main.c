@@ -1,6 +1,20 @@
 #include <efi.h>
 #include <efilib.h>
 
+#include <stddef.h>
+
+#include "elf_loader.h"
+
+int memcmp(const void *aptr, const void *bptr, size_t n) {
+	const unsigned char *a = aptr, *b = bptr;
+	for (size_t i = 0; i < n; i++) {
+		if (a[i] < b[i]) return -1;
+		else if (a[i] > b[i]) return 1;
+	}
+  
+	return 0;
+}
+
 EFI_FILE_HANDLE GetVolume(EFI_HANDLE image) {
   EFI_LOADED_IMAGE *LoadedImage = NULL;
   EFI_GUID LoadedImageGuid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
@@ -22,8 +36,6 @@ EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
   Print(L"MyOS Bootloader\n");
   
   EFI_FILE_HANDLE Volume = GetVolume(ImageHandle);
-
-  
 
   return EFI_SUCCESS;
 }

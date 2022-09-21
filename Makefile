@@ -10,7 +10,7 @@ LD 						= ld
 ROOT_BUILD_DIR			= build
 SCRIPTS_DIR				= scripts
 
-BOOTLOADER_CFLAGS 		= -I$(GNU_EFI_DIR)/inc -fpic -ffreestanding -fno-stack-protector -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args
+BOOTLOADER_CFLAGS 		= -Isrc/bootloader/include -I$(GNU_EFI_DIR)/inc -fpic -ffreestanding -fno-stack-protector -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args
 BOOTLOADER_LDFLAGS 		= -shared -Bsymbolic -L$(GNU_EFI_DIR)/x86_64/lib -L$(GNU_EFI_DIR)/x86_64/gnuefi -T$(GNU_EFI_DIR)/gnuefi/elf_x86_64_efi.lds $(GNU_EFI_DIR)/x86_64/gnuefi/crt0-efi-x86_64.o -lgnuefi -lefi
 
 BOOTLOADER_SRC_DIR 		:= src/bootloader
@@ -43,10 +43,10 @@ $(BOOTLOADER_OBJ_DIR)/%.o: $(BOOTLOADER_SRC_DIR)/%.c
 	
 BootloaderLink:
 	@ echo !==== LINKING BOOTLOADER
-	$(LD) $(BOOTLOADER_LDFLAGS) -o $(BOOTLOADER_BUILD_DIR)/bootloader.so $(BOOTLOADER_OBJS) -lgnuefi -lefi
+	$(LD) $(BOOTLOADER_LDFLAGS) -o $(BOOTLOADER_BUILD_DIR)/main.so $(BOOTLOADER_OBJS) -lgnuefi -lefi
 
 BootloaderEFI:
-	objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym  -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target efi-app-x86_64 --subsystem=10 $(BOOTLOADER_BUILD_DIR)/bootloader.so $(BOOTLOADER_BUILD_DIR)/bootloader.efi
+	objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym  -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target efi-app-x86_64 --subsystem=10 $(BOOTLOADER_BUILD_DIR)/main.so $(BOOTLOADER_BUILD_DIR)/main.efi
 
 BootloaderSetup:
 	@mkdir -p $(BOOTLOADER_BUILD_DIR)
@@ -69,12 +69,15 @@ KernelSetup:
 	@mkdir -p $(KERNEL_SRC_DIR)
 	@mkdir -p $(KERNEL_OBJ_DIR)
 
+Build: Bootloader Kernel
+	@ echo !=== BUILDING MyOS	
+
 BuildImage: Bootloader Kernel
 	dd if=/dev/zero of=$(ROOT_BUILD_DIR)/$(OS_NAME).img bs=512 count=93750
 	mformat -i $(ROOT_BUILD_DIR)/$(OS_NAME).img -f 1440 ::
 	mmd -i $(ROOT_BUILD_DIR)/$(OS_NAME).img ::/EFI
 	mmd -i $(ROOT_BUILD_DIR)/$(OS_NAME).img ::/EFI/BOOT
-	mcopy -i $(ROOT_BUILD_DIR)/$(OS_NAME).img $(BOOTLOADER_BUILD_DIR)/bootloader.efi ::/EFI/BOOT
+	mcopy -i $(ROOT_BUILD_DIR)/$(OS_NAME).img $(BOOTLOADER_BUILD_DIR)/main.efi ::/EFI/BOOT
 	mcopy -i $(ROOT_BUILD_DIR)/$(OS_NAME).img $(SCRIPTS_DIR)/startup.nsh ::
 	mcopy -i $(ROOT_BUILD_DIR)/$(OS_NAME).img $(KERNEL_BUILD_DIR)/kernel.elf ::
 
