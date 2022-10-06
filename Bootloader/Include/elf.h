@@ -4,8 +4,6 @@
 #include <efi.h>
 #include <efilib.h>
 
-#include "debug.h"
-
 #define EI_NIDENT        16
 
 #define EI_MAG0          0

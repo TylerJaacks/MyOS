@@ -17,4 +17,8 @@ EFI_STATUS LoadProgramSegments(
     IN VOID* const KernelHeaderBuffer,
     IN VOID* const KernelProgramHeadersBuffer);
 
+EFI_STATUS LoadKernelImage(IN EFI_FILE* const RootFileSystem,
+	IN CHAR16* const KernelImageFilename,
+	OUT EFI_PHYSICAL_ADDRESS* KernelEntryPoint);
+
 #endif // BOOTLOADER_ELF_LOADER_H
