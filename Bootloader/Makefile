@@ -36,7 +36,7 @@ BootloaderLink: $(BOOTLOADER_OBJS)
 	$(LD) $(BOOTLOADER_LDFLAGS) -o $(BOOTLOADER_BUILD_DIR)/main.so $(BOOTLOADER_OBJS) -lgnuefi -lefi
 
 BootloaderEFI:
-	objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym  -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target efi-app-x86_64 --subsystem=10 $(BOOTLOADER_BUILD_DIR)/main.so $(BOOTLOADER_BUILD_DIR)/main.efi
+	objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym  -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target efi-app-x86_64 --subsystem=10 $(BOOTLOADER_BUILD_DIR)/main.so $(BOOTLOADER_BUILD_DIR)/BOOTX64.efi
 
 BootloaderSetup:
 	@mkdir -p $(BOOTLOADER_BUILD_DIR)

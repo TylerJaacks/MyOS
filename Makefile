@@ -14,7 +14,7 @@ BuildImage:
 	mformat -i $(ROOT_BUILD_DIR)/$(OS_NAME).img ::
 	mmd -i $(ROOT_BUILD_DIR)/$(OS_NAME).img ::/EFI
 	mmd -i $(ROOT_BUILD_DIR)/$(OS_NAME).img ::/EFI/BOOT
-	mcopy -i $(ROOT_BUILD_DIR)/$(OS_NAME).img $(ROOT_BUILD_DIR)/Bootloader/main.efi ::/EFI/BOOT
+	mcopy -i $(ROOT_BUILD_DIR)/$(OS_NAME).img $(ROOT_BUILD_DIR)/Bootloader/BOOTX64.efi ::/EFI/BOOT
 	mcopy -i $(ROOT_BUILD_DIR)/$(OS_NAME).img $(SCRIPTS_DIR)/startup.nsh ::
 	mcopy -i $(ROOT_BUILD_DIR)/$(OS_NAME).img $(ROOT_BUILD_DIR)/Kernel/Kernel.elf ::
 
